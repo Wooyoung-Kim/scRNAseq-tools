@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scRNAseq-tools"
+version = "0.1.0"
+description = "CLI toolkit for scRNA-seq workflows."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+scRNAseq-tools = "scrnaseq_tools.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+scrnaseq_tools = ["templates/claude/**"]

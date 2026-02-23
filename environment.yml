@@ -1,0 +1,19 @@
+name: scrnaseq-tools
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - scanpy
+  - anndata
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - umap-learn
+  - pip:
+      - mcp>=1.0.0
+      - httpx>=0.27.0
+      - uv

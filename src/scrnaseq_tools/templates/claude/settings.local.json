@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python*)",
+      "Bash(python3*)",
+      "Bash(ls*)",
+      "Bash(du*)",
+      "Bash(tree*)",
+      "WebSearch",
+      "Bash(python3:*)",
+      "Bash(grep:*)",
+      "Bash(yes:*)",
+      "Bash(find:*)",
+      "Bash(xargs -I {} sh -c \"echo \"\"=== {} ===\"\" && head -5 {}\")",
+      "Bash(cat:*)",
+      "WebFetch(domain:pubmed.ncbi.nlm.nih.gov)"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "pubmed-tools": {
+      "command": "uv",
+      "args": ["run", "--directory", ".claude/mcp-servers/pubmed-tools", "python", "server.py"]
+    },
+    "scrnaseq-tools": {
+      "command": "uv",
+      "args": ["run", "--directory", ".claude/mcp-servers/scrnaseq-tools", "python", "server.py"]
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(uv run*)",
+      "Bash(python*)",
+      "mcp__pubmed-tools__*",
+      "mcp__scrnaseq-tools__*"
+    ]
+  },
+  "env": {
+    "ANNOTATION_DEBUG": "0"
+  }
+}
