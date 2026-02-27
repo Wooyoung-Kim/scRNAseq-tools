@@ -249,41 +249,54 @@ API status: OK (10 req/sec)
 
 ---
 
-## Reference Output Format (MANDATORY)
+## Reference Output Format (MANDATORY — Per-Marker Dict)
 
-Every reference stored in `annotation_evidence.json` MUST include ALL of these fields.
-Incomplete references are INVALID.
+Every `pmid_verified` field MUST be a **per-marker dictionary**, NOT a flat list.
+Each marker gene is a key, and its value is a list of verified references.
 
 ```json
-{
-  "pmid": "12345678",
-  "genes": ["GENE1", "GENE2"],
-  "title": "Full paper title from PubMed",
-  "journal": "Journal Name",
-  "year": 2022,
-  "authors_short": "FirstAuthor et al.",
-  "finding": "One-sentence summary: how the paper supports the marker-cell type link",
-  "status": "DOUBLE_VERIFIED"
+"pmid_verified": {
+  "DNTT": [
+    {
+      "pmid": "2785044",
+      "author": "Choudhury BA et al.",
+      "year": 1989,
+      "journal": "J Immunol",
+      "title": "TdT+ B cell precursors..."
+    }
+  ],
+  "RAG1": [
+    {
+      "pmid": "34530764",
+      "author": "Song Y et al.",
+      "year": 2023,
+      "journal": "Front Immunol",
+      "title": "RAG in lymphocyte development"
+    }
+  ],
+  "ERG": []
 }
+```
+
+```
+❌ FORBIDDEN: "pmid_verified": [{"pmid": "...", ...}]        ← flat list
+✅ REQUIRED:  "pmid_verified": {"Gene1": [...], "Gene2": [...]}  ← per-marker dict
 ```
 
 | Field | Required | Description |
 |-------|----------|-------------|
 | `pmid` | YES | PubMed ID (numeric string) |
-| `genes` | YES | Which genes this reference supports (list) |
-| `title` | YES | Full paper title |
-| `journal` | YES | Journal name |
+| `author` | YES | "FirstAuthor et al." format |
 | `year` | YES | Publication year (integer) |
-| `authors_short` | YES | "FirstAuthor et al." format |
-| `finding` | YES | How the paper supports the marker-cell type relationship |
-| `status` | YES | VERIFIED or DOUBLE_VERIFIED |
+| `journal` | YES | Journal name |
+| `title` | YES | Full paper title |
 
 ---
 
 ## Key Points
 
 1. **모든 참조에 PMID 필수** - API 검색으로 실시간 확보
-2. **Rate limiting 준수** - 0.1-0.15초 간격
-3. **Retry 로직** - API 오류 시 자동 재시도
-4. **검증 상태 기록** - VERIFIED / NOT_FOUND
-5. **상세 정보 필수** - PMID만으로는 부족; genes, title, finding 모두 기록
+2. **Per-Marker 검증 필수** - 각 marker gene마다 개별 검증
+3. **Rate limiting 준수** - 0.1-0.15초 간격
+4. **Retry 로직** - API 오류 시 자동 재시도
+5. **미검증 마커 = 빈 리스트** - reference 못 찾은 마커도 key로 포함 (빈 `[]`)

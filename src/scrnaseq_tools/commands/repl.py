@@ -1,20 +1,9 @@
 import os
 import shlex
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Optional
 
-
-DATA_EXTENSIONS = (
-    ".h5ad",
-    ".loom",
-    ".mtx",
-    ".mtx.gz",
-    ".h5",
-    ".hdf5",
-    ".csv",
-    ".tsv",
-    ".txt",
-)
+from ..data_utils import env_info, render_env_text, render_summary_text, scan_data, summarize_file
 
 
 def register(subparsers) -> None:
@@ -32,85 +21,6 @@ def list_dir(path: Path) -> None:
     for entry in sorted(path.iterdir(), key=lambda p: (p.is_file(), p.name.lower())):
         suffix = "/" if entry.is_dir() else ""
         print(f"{entry.name}{suffix}")
-
-
-def scan_data(path: Path, recursive: bool) -> List[Path]:
-    if not path.exists():
-        print(f"not found: {path}")
-        return []
-    if path.is_file():
-        return [path]
-    iterator: Iterable[Path]
-    iterator = path.rglob("*") if recursive else path.iterdir()
-    matches = [p for p in iterator if p.is_file() and p.name.lower().endswith(DATA_EXTENSIONS)]
-    return sorted(matches)
-
-
-def summarize_file(path: Path) -> None:
-    if not path.exists():
-        print(f"not found: {path}")
-        return
-    if path.suffix.lower() == ".h5ad":
-        summarize_h5ad(path)
-        return
-    if path.suffix.lower() in (".csv", ".tsv", ".txt"):
-        summarize_table(path)
-        return
-    print(f"file: {path}")
-    print(f"size: {path.stat().st_size} bytes")
-
-
-def summarize_h5ad(path: Path) -> None:
-    try:
-        import anndata as ad
-    except ImportError:
-        print("anndata is not installed; cannot read .h5ad")
-        return
-    adata = ad.read_h5ad(path, backed="r")
-    print(f"path: {path}")
-    print(f"shape: {adata.n_obs} cells x {adata.n_vars} genes")
-    print(f"obs columns: {', '.join(list(adata.obs.keys())[:20])}")
-    print(f"var columns: {', '.join(list(adata.var.keys())[:20])}")
-    if adata.layers:
-        print(f"layers: {', '.join(list(adata.layers.keys())[:20])}")
-    if adata.obsm:
-        print(f"obsm: {', '.join(list(adata.obsm.keys())[:20])}")
-    if adata.uns:
-        print(f"uns: {', '.join(list(adata.uns.keys())[:20])}")
-
-
-def summarize_table(path: Path) -> None:
-    try:
-        import pandas as pd
-    except ImportError:
-        print("pandas is not installed; cannot read table")
-        return
-    sep = "\t" if path.suffix.lower() == ".tsv" else ","
-    df = pd.read_csv(path, sep=sep, nrows=5)
-    print(f"path: {path}")
-    print(f"columns: {', '.join(df.columns)}")
-    print(df.head().to_string(index=False))
-
-
-def show_env() -> None:
-    try:
-        import anndata
-        ad_ver = anndata.__version__
-    except ImportError:
-        ad_ver = "not installed"
-    try:
-        import scanpy
-        sc_ver = scanpy.__version__
-    except ImportError:
-        sc_ver = "not installed"
-    try:
-        import pandas
-        pd_ver = pandas.__version__
-    except ImportError:
-        pd_ver = "not installed"
-    print(f"anndata: {ad_ver}")
-    print(f"scanpy: {sc_ver}")
-    print(f"pandas: {pd_ver}")
 
 
 def print_help() -> None:
@@ -175,7 +85,11 @@ def run(_args) -> int:
                     target = Path(item).expanduser()
             if target is None:
                 target = Path(os.getcwd())
-            matches = scan_data(target, recursive)
+            try:
+                matches = scan_data(target, recursive)
+            except FileNotFoundError:
+                print(f"not found: {target}")
+                continue
             if not matches:
                 print("no matching files found")
                 continue
@@ -186,10 +100,18 @@ def run(_args) -> int:
             if not args:
                 print("usage: summary <path>")
                 continue
-            summarize_file(Path(args[0]).expanduser())
+            try:
+                data = summarize_file(Path(args[0]).expanduser())
+            except FileNotFoundError:
+                print(f"not found: {Path(args[0]).expanduser()}")
+                continue
+            except RuntimeError as exc:
+                print(str(exc))
+                continue
+            print(render_summary_text(data))
             continue
         if cmd == "env":
-            show_env()
+            print(render_env_text(env_info()))
             continue
 
         print(f"unknown command: {cmd}")

@@ -196,7 +196,7 @@ for cluster in adata.obs['tier1_cluster'].unique():
         (de_df['pct_nz_group'] >= 0.25) &
         (de_df['logfoldchanges'] >= 1.0) &
         (de_df['pvals_adj'] < 0.05)
-    ].nlargest(20, 'logfoldchanges')
+    ].nlargest(50, 'logfoldchanges')
 
     top_markers = cluster_de['names'].tolist()
 

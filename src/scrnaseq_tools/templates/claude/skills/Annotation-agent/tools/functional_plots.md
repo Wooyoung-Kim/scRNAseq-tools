@@ -493,7 +493,7 @@ def plot_tier3_combined(adata, annotation_col, marker_dict, annotation_order,
 ```
 Tier 2 Outputs:
 - [ ] {prefix}_tier2_umap.png/.svg
-- [ ] {prefix}_tier2_dotplot.png/.svg
+- [ ] {prefix}_tier2_annotation_marker_dotplot.png/.svg
 - [ ] {prefix}_tier2_tf_heatmap.png/.svg
 - [ ] {prefix}_tier2_pseudotime_umap.png/.svg (if computed)
 - [ ] {prefix}_tier2_pseudotime_violin.png/.svg (if computed)
@@ -501,7 +501,7 @@ Tier 2 Outputs:
 
 Tier 3 Outputs:
 - [ ] {prefix}_tier3_umap.png/.svg
-- [ ] {prefix}_tier3_dotplot.png/.svg
+- [ ] {prefix}_tier3_annotation_marker_dotplot.png/.svg
 - [ ] {prefix}_tier3_pathway_heatmap.png/.svg
 - [ ] {prefix}_tier3_combined.png/.svg
 ```

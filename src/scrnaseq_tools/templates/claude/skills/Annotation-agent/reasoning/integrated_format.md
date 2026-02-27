@@ -36,7 +36,7 @@ Iteration 3: Integrated Decision + Verification
 
 ## Cluster {X} Evidence Summary
 
-### DE Markers (Top 20 Valid)
+### DE Markers (Top 50 Valid)
 | Rank | Gene | pct_in | log2FC | padj |
 |------|------|--------|--------|------|
 | 1 | {gene} | {val} | {val} | {val} |
@@ -143,7 +143,7 @@ Query 2: "{TF_combo} {cell_type_context}"
 
 ## Cluster {X} Evidence Summary (Parent: {Major}_{Dev})
 
-### DE Markers (Top 20 Valid)
+### DE Markers (Top 50 Valid)
 | Rank | Gene | pct_in | log2FC | padj |
 |------|------|--------|--------|------|
 | 1 | {gene} | {val} | {val} | {val} |

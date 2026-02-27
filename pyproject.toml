@@ -4,14 +4,45 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scRNAseq-tools"
-version = "0.1.0"
-description = "CLI toolkit for scRNA-seq workflows."
+version = "0.2.0"
+description = "CLI toolkit for scRNA-seq workflows with integrated analysis pipeline."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = []
 
+[project.optional-dependencies]
+analysis = [
+    "scanpy>=1.9.0",
+    "anndata>=0.9.0",
+    "numpy>=1.21.0",
+    "scipy>=1.9.0",
+    "pandas>=1.5.0",
+    "matplotlib>=3.5.0",
+    "seaborn>=0.12.0",
+    "umap-learn>=0.5.0",
+    "leidenalg>=0.9.0",
+    "python-igraph>=0.10.0",
+    "pyyaml>=6.0",
+]
+scvi = ["scRNAseq-tools[analysis]", "scvi-tools>=1.0.0"]
+harmony = ["scRNAseq-tools[analysis]", "harmonypy>=0.0.9"]
+scanorama = ["scRNAseq-tools[analysis]", "scanorama>=1.7.0"]
+doublet = ["scRNAseq-tools[analysis]", "scrublet>=0.2.3"]
+benchmark = ["scRNAseq-tools[analysis]", "scib-metrics>=0.4.0"]
+mcp = ["mcp>=1.0.0"]
+all = [
+    "scRNAseq-tools[analysis]",
+    "scvi-tools>=1.0.0",
+    "harmonypy>=0.0.9",
+    "scanorama>=1.7.0",
+    "scrublet>=0.2.3",
+    "scib-metrics>=0.4.0",
+    "mcp>=1.0.0",
+]
+
 [project.scripts]
 scRNAseq-tools = "scrnaseq_tools.cli:main"
+scRNAseq-tools-mcp = "scrnaseq_tools.analysis:run_mcp_server"
 
 [tool.setuptools]
 include-package-data = true

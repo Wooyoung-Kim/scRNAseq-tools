@@ -5,11 +5,48 @@ CLI-first toolkit for single-cell RNA-seq workflows. The default mode does not u
 ## Quick start
 
 ```bash
-python -m pip install -e .
+python -m pip install -e .                # Basic install (init/chat/scan)
+python -m pip install -e ".[analysis]"    # + QC/pipeline/integration
+python -m pip install -e ".[all]"         # + scVI/Harmony/Scanorama/doublet/MCP
 scRNAseq-tools --help
-scRNAseq-tools info
-scRNAseq-tools init --target /path/to/project
 ```
+
+## Analysis pipeline (v0.2.0+)
+
+Integrated scRNA-seq QC-to-Integration pipeline. Requires `[analysis]` extras.
+
+### Run QC only
+```bash
+scRNAseq-tools qc data.h5ad -o output/ --nmads 3.0
+```
+
+### Run full pipeline
+```bash
+scRNAseq-tools pipeline data.h5ad -o output/ --batch-key sample --resolution 0.5
+scRNAseq-tools pipeline data.h5ad -o output/ --agent   # Agent-friendly mode
+```
+
+### Batch integration
+```bash
+scRNAseq-tools integrate processed.h5ad -o output/ --batch-key sample --methods harmony scvi
+```
+
+### Data profiling (agent-friendly)
+```bash
+scRNAseq-tools profile data.h5ad --json
+```
+
+### Optional dependency groups
+| Group | Contents |
+|-------|----------|
+| `analysis` | scanpy, anndata, numpy, scipy, pandas, matplotlib, seaborn, leidenalg |
+| `scvi` | analysis + scvi-tools |
+| `harmony` | analysis + harmonypy |
+| `scanorama` | analysis + scanorama |
+| `doublet` | analysis + scrublet |
+| `benchmark` | analysis + scib-metrics |
+| `mcp` | mcp |
+| `all` | Everything above |
 
 ## Step-by-step guides
 
@@ -48,6 +85,11 @@ scRNAseq-tools init --target /path/to/project
 ### Local REPL (no LLM)
 1) `scRNAseq-tools repl`
 2) Use `scan`, `summary`, and `env`
+
+### Non-interactive data commands
+1) `scRNAseq-tools scan .`
+2) `scRNAseq-tools scan /path/to/data -r --json`
+3) `scRNAseq-tools summary /path/to/file.h5ad`
 
 ### Reproducible setup (conda/Docker)
 1) `conda env create -f environment.yml`
@@ -140,6 +182,8 @@ scRNAseq-tools info
 scRNAseq-tools doctor
 scRNAseq-tools chat
 scRNAseq-tools repl
+scRNAseq-tools scan
+scRNAseq-tools summary
 scRNAseq-tools version
 ```
 
@@ -234,6 +278,23 @@ Commands:
 - `scan [path] [-r]`: list data files (`.h5ad`, `.mtx`, `.csv`, ...)
 - `summary <path>`: quick summary (uses `anndata` for `.h5ad`, `pandas` for tables)
 - `env`: show installed analysis packages
+
+## Data Commands
+
+Use non-interactive commands for scripts and pipelines:
+
+```bash
+scRNAseq-tools scan [path] [-r] [--json]
+scRNAseq-tools summary <path> [--json]
+```
+
+`scan`:
+- Lists matching data files (`.h5ad`, `.loom`, `.mtx`, `.csv`, `.tsv`, ...).
+- Returns JSON with `--json` (includes file count and file list).
+
+`summary`:
+- Summarizes `.h5ad` (shape, obs/var/layers keys), table files (`.csv/.tsv/.txt`), and generic files.
+- Returns JSON with `--json`.
 
 ## Reproducibility
 

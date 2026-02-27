@@ -4,7 +4,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Optional
 
-DEFAULT_CLAUDE_SOURCE = "/home/kwy7605/data_61/Vaccine_V2/.claude"
+DEFAULT_CLAUDE_SOURCE = None  # Use embedded template; override with --source or SCRNASEQ_TOOLS_CLAUDE_SOURCE
 
 
 def register(subparsers) -> None:
@@ -40,14 +40,15 @@ def copy_resource_tree(source, destination: Path) -> None:
 
 def resolve_source_dir(source_arg: Optional[str]) -> Optional[Path]:
     source_env = os.environ.get("SCRNASEQ_TOOLS_CLAUDE_SOURCE")
-    default_source_dir = Path(DEFAULT_CLAUDE_SOURCE)
 
     if source_arg:
         return Path(source_arg).expanduser()
     if source_env:
         return Path(source_env).expanduser()
-    if default_source_dir.is_dir():
-        return default_source_dir
+    if DEFAULT_CLAUDE_SOURCE is not None:
+        default_source_dir = Path(DEFAULT_CLAUDE_SOURCE)
+        if default_source_dir.is_dir():
+            return default_source_dir
     return None
 
 

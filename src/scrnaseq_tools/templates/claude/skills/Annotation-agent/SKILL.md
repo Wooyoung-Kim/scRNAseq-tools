@@ -243,13 +243,38 @@ assert 'score_mlm' in subset.obsm or 'mlm_estimate' in subset.obsm, "❌ Pathway
 
 ## Phase Flow
 
-| Phase | REQUIRED Analysis | Verification | Output |
-|-------|-------------------|--------------|--------|
-| **0** | User config | `annotation_config` in `adata.uns` | Config stored |
-| **1** | DE only | `rank_genes_groups` computed | Tier 1 labels |
-| **2** | DE + TF + Trajectory | `score_ulm` + `pseudotime` in adata | Tier 2 labels |
-| **3** | DE + Pathway | `score_mlm` in adata | Tier 3 labels |
-| **4** | Visualization + Report | All figures + report.md saved | **report.md** (PRIMARY) |
+| Phase | REQUIRED Analysis | Marker Criteria | Output |
+|-------|-------------------|-----------------|--------|
+| **0** | User config | — | Config stored |
+| **1** | DE only | pct ≥ 25%, LFC ≥ 1, padj < 0.05, Top 50, **2-5개 마커 조합 (단일 마커 금지)** | Tier 1 labels |
+| **2** | DE + TF + Trajectory | pct ≥ 25%, LFC ≥ 1, padj < 0.05, Top 50, **2-5개 마커 조합 (단일 마커 금지)** | ① Subset UMAP ② Annotation Marker DotPlot (상단 브라켓) ③ Reasoning + 논문 PMID/제목 |
+| **3** | DE + Pathway | pct ≥ 25%, LFC ≥ 1, padj < 0.05, Top 50, **2-5개 마커 조합 (단일 마커 금지)** | ① Subset UMAP ② Annotation Marker DotPlot (상단 브라켓) ③ 기능 상태 Reasoning + PMID/제목 |
+| **4** | Visualization + Report | — | **report.md** (PRIMARY) |
+
+### Tier 3 입력 구성: Tier 2 Annotation + Cluster 결합
+
+Tier 3의 입력은 Tier 2 annotation 결과와 cluster 번호를 **결합**하여 생성합니다:
+
+```python
+# Tier 2 결과: cluster 1, 2 → Memory_B / cluster 3 → Naive_B 등
+# Tier 3 입력: Memory_B_1, Memory_B_2, Naive_B_3 형태로 결합
+
+subset.obs['tier3_group'] = (
+    subset.obs['tier2_annotation'].astype(str) + '_' +
+    subset.obs['tier2_cluster'].astype(str)
+)
+
+# DE는 이 결합 레이블로 실행
+sc.tl.rank_genes_groups(subset, groupby='tier3_group', method='wilcoxon')
+de = sc.get.rank_genes_groups_df(subset, group=None)
+de = de[(de['pcts'] >= 0.25) & (de['logfoldchanges'] >= 1) & (de['pvals_adj'] < 0.05)]
+de = de.groupby('group').head(50)
+
+# 목적: Memory_B_1 vs Memory_B_2의 기능적 차이를 파악
+# → Memory_B_1 = Resting Memory? Memory_B_2 = Activated Memory?
+```
+
+> **핵심**: 같은 cell type 내에서도 cluster별 기능적 차이를 DE + Pathway로 밝히는 것이 Tier 3의 목적
 
 ---
 
@@ -312,7 +337,7 @@ During annotation (before report), collect evidence per cluster:
 ```markdown
 **Evidence for Cluster X**:
 
-## DE Markers (Top 10)
+## DE Markers (Top 50)
 | Gene | LFC | pct_in | padj |
 |------|-----|--------|------|
 | ... |
@@ -337,7 +362,7 @@ During annotation (before report), collect evidence per cluster:
 ```markdown
 **Evidence for Cluster X**:
 
-## DE Markers (Top 10)
+## DE Markers (Top 50)
 | Gene | LFC | pct_in | padj |
 |------|-----|--------|------|
 | ... |
@@ -389,7 +414,7 @@ TIER 3 CHECKLIST:
 
 PHASE 4 CHECKLIST (Visualization + Report):
 - [ ] UMAP figures saved (adaptive dot size, legend_loc='on data')
-- [ ] Dotplot figures saved (DotPlot OOP API, dot_max=1.0, largest_dot=60)
+- [ ] Annotation Marker Dotplot figures saved (DotPlot OOP API, dot_max=1.0, largest_dot=60)
 - [ ] {prefix}_report.md saved (PRIMARY deliverable — structured markdown)
 - [ ] annotation_evidence.json saved (machine-readable)
 - [ ] run_manifest.json saved and validated
@@ -406,8 +431,11 @@ subset = adata[adata.obs['tier1_annotation'] == major_type].copy()
 # 1. Re-cluster
 sc.tl.leiden(subset, resolution=0.8, key_added='tier2_cluster')
 
-# 2. DE (MANDATORY)
-sc.tl.rank_genes_groups(subset, groupby='tier2_cluster')
+# 2. DE (MANDATORY) — pct >= 25%, LFC >= 1, padj < 0.05, Top 50
+sc.tl.rank_genes_groups(subset, groupby='tier2_cluster', method='wilcoxon')
+de = sc.get.rank_genes_groups_df(subset, group=None)
+de = de[(de['pcts'] >= 0.25) & (de['logfoldchanges'] >= 1) & (de['pvals_adj'] < 0.05)]
+de = de.groupby('group').head(50)
 
 # 3. TF Activity (MANDATORY) — decoupler v2 API
 import decoupler as dc

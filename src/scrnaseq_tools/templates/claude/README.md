@@ -30,6 +30,23 @@ Vaccine_V2 프로젝트의 single-cell RNA-seq 분석 및 hierarchical cell type
 
 ---
 
+## ⚠️ Skill Loading Rules (Context Optimization)
+
+**DO NOT read all skill files at once.** Read ONLY the files needed for your CURRENT phase.  
+Each `.md` contains rules/criteria. Code is in the matching `_template.py`.
+
+| Phase | Read These Files | Code Reference |
+|-------|-----------------|----------------|
+| Phase 0 | `SKILL.md` + `phases/user_config.md` | — |
+| Tier 1 | `phases/tier1.md` | `phases/tier1_template.py` |
+| Tier 2 | `phases/tier2.md` | `phases/tier2_template.py` |
+| Tier 3 | `phases/tier3.md` | `phases/tier3_template.py` |
+| Phase 4 | `tools/visualization.md` | `tools/visualization_template.py` |
+| As needed | `reasoning/integrated_format.md` | — |
+| As needed | `tools/dynamic_knowledge.md` | `tools/dynamic_knowledge.py` |
+
+---
+
 ## Approved Visualization Formats
 
 ### UMAP

@@ -26,6 +26,7 @@ This skill provides comprehensive QC workflow for scRNA-seq data before annotati
 | **Doublet Detection** | "이 세포가 실제 single cell인가?" | Doublet scores |
 | **Normalization** | "표현량이 비교 가능한가?" | Normalized matrix |
 | **Batch Integration** | "batch effect가 제거되었는가?" | Harmony embedding |
+| **Clustering** | "최적 resolution은 무엇인가?" | Leiden clusters |
 
 ---
 
@@ -93,7 +94,8 @@ QC-pipeline/
 │   ├── gene_filtering.md       # Gene filtering
 │   ├── doublet_detection.md    # Scrublet workflow
 │   ├── normalization.md        # Log-normalization + HVG
-│   └── batch_integration.md    # Harmony integration
+│   ├── batch_integration.md    # Harmony integration
+│   └── clustering.md           # Resolution selection + Leiden
 ├── tools/
 │   ├── visualization.md        # QC plots
 │   └── metrics.md              # QC metrics table
@@ -144,9 +146,11 @@ Step 6: Normalization + HVG Selection
     ↓
 Step 7: PCA + Batch Integration (Harmony)
     ↓
-Step 8: UMAP + Verification
+Step 8: Multi-resolution Clustering (→ phases/clustering.md)
     ↓
-Step 9: Save → Annotation-agent
+Step 9: UMAP + Verification
+    ↓
+Step 10: Save → Annotation-agent
 ```
 
 ---

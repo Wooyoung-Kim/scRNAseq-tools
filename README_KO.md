@@ -49,6 +49,11 @@ scRNAseq-tools init --target /path/to/project
 1) `scRNAseq-tools repl`
 2) `scan`, `summary`, `env` 사용
 
+### 비대화형 데이터 명령
+1) `scRNAseq-tools scan .`
+2) `scRNAseq-tools scan /path/to/data -r --json`
+3) `scRNAseq-tools summary /path/to/file.h5ad`
+
 ### 재현성 환경 (conda/Docker)
 1) `conda env create -f environment.yml`
 2) `conda activate scrnaseq-tools`
@@ -140,6 +145,8 @@ scRNAseq-tools info
 scRNAseq-tools doctor
 scRNAseq-tools chat
 scRNAseq-tools repl
+scRNAseq-tools scan
+scRNAseq-tools summary
 scRNAseq-tools version
 ```
 
@@ -234,6 +241,23 @@ scRNAseq-tools repl
 - `scan [path] [-r]`: 데이터 파일 검색 (`.h5ad`, `.mtx`, `.csv` 등)
 - `summary <path>`: 간단 요약 (`.h5ad`는 `anndata`, 표는 `pandas`)
 - `env`: 설치된 분석 패키지 확인
+
+## 데이터 명령
+
+스크립트/파이프라인에서는 비대화형 명령을 사용할 수 있습니다:
+
+```bash
+scRNAseq-tools scan [path] [-r] [--json]
+scRNAseq-tools summary <path> [--json]
+```
+
+`scan`:
+- 데이터 파일(`.h5ad`, `.loom`, `.mtx`, `.csv`, `.tsv` 등)을 검색합니다.
+- `--json` 사용 시 파일 개수와 목록을 JSON으로 반환합니다.
+
+`summary`:
+- `.h5ad`(shape, obs/var/layers 키), 표 파일(`.csv/.tsv/.txt`), 일반 파일을 요약합니다.
+- `--json` 사용 시 요약 결과를 JSON으로 반환합니다.
 
 ## 재현성
 
